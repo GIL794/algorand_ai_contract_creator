@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 1.7.0
+_src_path: gh:algorandfoundation/algokit-python-template
+author_email: cypriandnamchu@outlook.com
+author_name: CDNamchu
+contract_name: algorand_ai_contract_creator
+deployment_language: python
+preset_name: production
+project_name: algorand-ai-contract-creator
+
