@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algorand-ai-contract-creator"
+version = "0.1.0"
+description = "AI-powered Algorand smart contract generator with AlgoKit integration"
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+dependencies = [
+    "streamlit>=1.28.1",
+    "openai>=1.3.5",
+    "pyteal>=0.24.0",
+    "py-algorand-sdk>=2.6.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.3",
+    "black>=23.11.0",
+    "pylint>=3.0.2",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tools*", "smart_contracts*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+pythonpath = ["."]
+
+[tool.pylint.messages_control]
+max-line-length = 100
