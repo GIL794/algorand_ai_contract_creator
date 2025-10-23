@@ -1,0 +1,27 @@
+[project]
+type = 'contract'
+name = 'algorand-ai-contract-creator'
+artifacts = 'smart_contracts/artifacts'
+
+[project.run]
+# Run the AI web interface
+web = 'streamlit run tools/web_interface.py'
+
+# Run tests
+test = 'pytest tests/ -v'
+
+[project.deploy]
+# Deployment configuration
+command = 'python tools/deploy.py'
+network = 'testnet'
+
+[generate]
+# Where AI-generated contracts are saved
+output_path = 'smart_contracts/ai_generated'
+ai_provider = 'perplexity'  # or 'openai'
+default_model = 'llama-3.1-sonar-large-128k-online'
+
+[ai]
+# AI configuration
+temperature = 0.2
+max_retries = 3

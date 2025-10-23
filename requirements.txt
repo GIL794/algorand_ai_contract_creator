@@ -1,0 +1,8 @@
+# Production dependencies - required to run the application
+streamlit>=1.28.1
+openai>=1.3.5
+pyteal>=0.24.0
+py-algorand-sdk>=2.6.0
+python-dotenv>=1.0.0
+
+# Note: Perplexity API support uses OpenAI-compatible client
