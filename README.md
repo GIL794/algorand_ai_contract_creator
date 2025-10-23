@@ -259,6 +259,41 @@ MIT License - See LICENSE file
 - [OpenAI API Docs](https://platform.openai.com/docs)
 - [PyTeal Examples](https://github.com/algorand/pyteal/tree/master/examples)
 
----
+
+
+## 🖼️ Screenshots
+
+Thanks — I've renamed your images to friendly filenames and updated the examples below so they display correctly in the README.
+
+- images/dashboard-1.jpeg
+- images/dashboard-2.jpeg
+- images/dashboard-3.jpeg
+
+Inline display (HTML):
+
+<img src="images/dashboard-1.jpeg" alt="Dashboard 1" width="900" />
+
+<img src="images/dashboard-2.jpeg" alt="Dashboard 2" width="900" />
+
+<img src="images/dashboard-3.jpeg" alt="Dashboard 3" width="900" />
+
+Copyable Markdown (clean names):
+
+```markdown
+![Dashboard 1](images/dashboard-1.jpeg)
+![Dashboard 2](images/dashboard-2.jpeg)
+![Dashboard 3](images/dashboard-3.jpeg)
+```
+
+Side-by-side thumbnails (HTML):
+
+<div>
+        <img src="images/dashboard-1.jpeg" alt="thumb1" width="300" style="margin-right:8px" />
+        <img src="images/dashboard-2.jpeg" alt="thumb2" width="300" style="margin-right:8px" />
+        <img src="images/dashboard-3.jpeg" alt="thumb3" width="300" />
+</div>
+
+If you'd like different names or a different layout, tell me and I can change them.
+
 
 **⚠️ DISCLAIMER**: This tool generates smart contracts for educational and testing purposes. Always conduct thorough security audits before deploying to MainNet. AI-generated code should be reviewed by experienced developers.
