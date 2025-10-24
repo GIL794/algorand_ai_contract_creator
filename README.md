@@ -62,6 +62,7 @@ algorand-ai-contract-creator/
 └── README.md                         # You are reading it, well done!
 └── requirements-dev.txt              # Install these after installing the following
 └── requirements.txt                  # Well, above is a 'rule of thumb'
+```
 
 
 ## 🚀 Quick Start
@@ -309,3 +310,4 @@ If you'd like different names or a different layout, tell me and I can change th
 
 
 **⚠️ DISCLAIMER**: This tool generates smart contracts for educational and testing purposes. Always conduct thorough security audits before deploying to MainNet. AI-generated code should be reviewed by experienced developers.
+
