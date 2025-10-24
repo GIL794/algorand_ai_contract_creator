@@ -85,6 +85,10 @@ $ pip install -e .
 
 # Install dependencies
 $ pip install -r requirements.txt
+
+# Install -dev dependencies
+$ pip install -r requirements-dev.txt
+
 ```
 
 ### Configuration
@@ -126,11 +130,17 @@ scripts\run.bat
 source venv/bin/activate  # On Unix/macOS
 venv\Scripts\activate     # On Windows
 
+# Run main.py
+python main.py
+
+Not including, as not necessary:"
 # Run Streamlit app
 streamlit run src/algorand_ai_contractor/ui/streamlit_app.py
 
 # Run Streamlit
 streamlit run tools\web_interface.py
+"
+
 ```
 
 Navigate to `http://localhost:8501`
@@ -297,3 +307,4 @@ If you'd like different names or a different layout, tell me and I can change th
 
 
 **⚠️ DISCLAIMER**: This tool generates smart contracts for educational and testing purposes. Always conduct thorough security audits before deploying to MainNet. AI-generated code should be reviewed by experienced developers.
+
