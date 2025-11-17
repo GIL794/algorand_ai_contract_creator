@@ -16,4 +16,4 @@ if [ ! -f .env ]; then
 fi
 
 echo "🚀 Starting Algorand AI Contract Creator..."
-streamlit run src/algorand_ai_contractor/ui/streamlit_app.py
+python main.py

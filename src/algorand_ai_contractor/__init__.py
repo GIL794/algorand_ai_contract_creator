@@ -8,10 +8,12 @@ Algorand PyTeal smart contracts using natural language and AI.
 __version__ = "0.1.0"
 __author__ = "CDNamchu"
 
-from algorand_ai_contractor.core.ai_engine import ContractGenerator, explain_contract
-from algorand_ai_contractor.core.algorand_utils import *
+from .core.ai_engine import ContractGenerator, explain_contract
+from .core.algorand_utils import AlgorandDeployer, create_simple_clear_program
 
 __all__ = [
     "ContractGenerator",
     "explain_contract",
+    "AlgorandDeployer",
+    "create_simple_clear_program",
 ]

@@ -142,8 +142,8 @@ venv\Scripts\activate     # On Windows
 # Run Streamlit app
 streamlit run src/algorand_ai_contractor/ui/streamlit_app.py
 
-# Run Streamlit
-streamlit run tools\web_interface.py
+# OR use the main entry point
+python main.py
 ```
 
 Navigate to `http://localhost:8501`

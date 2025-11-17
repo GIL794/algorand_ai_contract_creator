@@ -5,19 +5,20 @@ artifacts = 'smart_contracts/artifacts'
 
 [project.run]
 # Run the AI web interface
-web = 'streamlit run tools/web_interface.py'
+web = 'python main.py'
 
 # Run tests
 test = 'pytest tests/ -v'
 
 [project.deploy]
 # Deployment configuration
-command = 'python tools/deploy.py'
+# Note: Deployment is handled through the Streamlit UI
+# Use the "Deploy" tab in the web interface
 network = 'testnet'
 
 [generate]
 # Where AI-generated contracts are saved
-output_path = 'smart_contracts/ai_generated'
+output_path = 'outputs/contracts'
 ai_provider = 'perplexity'  # or 'openai'
 default_model = 'llama-3.1-sonar-large-128k-online'
 

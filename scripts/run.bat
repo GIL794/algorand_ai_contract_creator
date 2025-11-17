@@ -21,6 +21,7 @@ if not exist ".env" (
 )
 
 REM Run Streamlit
-streamlit run tools\web_interface.py
+REM Use main.py which handles path setup, or run Streamlit directly
+python main.py
 
 pause

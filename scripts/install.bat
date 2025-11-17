@@ -34,6 +34,7 @@ echo.
 echo Next steps:
 echo 1. Copy .env.example to .env
 echo 2. Add your Perplexity API key to .env
-echo 3. Run: streamlit run tools\web_interface.py
+echo 3. Run: scripts\run.bat
+echo    OR: python main.py
 echo.
 pause

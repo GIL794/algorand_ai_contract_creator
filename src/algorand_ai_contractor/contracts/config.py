@@ -8,9 +8,10 @@ from pathlib import Path
 from algosdk.transaction import StateSchema
 
 # Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
-GENERATED_CONTRACTS_PATH = PROJECT_ROOT / "smart_contracts" / "ai_generated"
-ARTIFACTS_PATH = PROJECT_ROOT / "smart_contracts" / "artifacts"
+# Calculate project root: from contracts/config.py -> algorand_ai_contractor -> src -> project root
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+GENERATED_CONTRACTS_PATH = PROJECT_ROOT / "outputs" / "contracts"
+ARTIFACTS_PATH = PROJECT_ROOT / "outputs" / "teal"
 
 # Ensure directories exist
 GENERATED_CONTRACTS_PATH.mkdir(parents=True, exist_ok=True)
