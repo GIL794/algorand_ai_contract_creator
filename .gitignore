@@ -39,6 +39,9 @@ env/
 .env.local
 .env.*.local
 
+# Test logs
+outputs/logs/*.txt
+
 # Outputs (AI-generated contracts, logs, compiled TEAL)
 outputs/contracts/*
 !outputs/contracts/.gitkeep
