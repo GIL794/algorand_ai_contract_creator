@@ -9,6 +9,7 @@ import os
 import json
 import logging
 from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 from typing import Dict, Optional
 
@@ -19,9 +20,13 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 PERPLEXITY_API_KEY = os.getenv('PERPLEXITY_API_KEY')
 AI_PROVIDER = os.getenv('AI_PROVIDER', 'perplexity')
 
-# Configure structured logging
+# Configure structured logging to canonical outputs/logs directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+LOG_DIR = PROJECT_ROOT / "outputs" / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
-    filename='ai_generations.log',
+    filename=str(LOG_DIR / 'ai_generations.log'),
     level=logging.INFO,
     format='%(asctime)s | %(levelname)s | %(message)s'
 )

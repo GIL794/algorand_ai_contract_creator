@@ -1,0 +1,123 @@
+name: CI - Tests & Linting
+
+on:
+  push:
+    branches: [ main, purple-bulldog, develop ]
+  pull_request:
+    branches: [ main, purple-bulldog, develop ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11" ]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Run unit tests (no external API calls)
+      run: |
+        pytest tests/ -v --tb=short -m "not integration"
+    
+    - name: Run linting (black check)
+      run: |
+        black --check src/ tests/ || true
+    
+    - name: Run linting (pylint)
+      run: |
+        pylint src/algorand_ai_contractor/core/ || true
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    # Only run on main branch or if explicitly triggered
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Run integration tests (with live APIs)
+      env:
+        PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        RUN_LIVE_TESTS: "1"
+      run: |
+        # Skip if no API keys available
+        if [ -z "$PERPLEXITY_API_KEY" ] && [ -z "$OPENAI_API_KEY" ]; then
+          echo "No API keys available; skipping integration tests"
+          exit 0
+        fi
+        pytest tests/ -v -m integration --tb=short
+
+  validate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Validate documentation structure
+      run: |
+        # Check that critical docs exist
+        test -f README.md || { echo "README.md missing"; exit 1; }
+        test -f docs/README.md || { echo "docs/README.md missing"; exit 1; }
+        test -f docs/xgov-positioning.md || { echo "docs/xgov-positioning.md missing"; exit 1; }
+        test -f docs/internal/REPORT_1_HOW_IT_WORKS.md || { echo "Internal reports missing"; exit 1; }
+        echo "✅ Documentation structure valid"
+    
+    - name: Check for broken relative links in markdown
+      run: |
+        # Basic check for [text](file) patterns where file might not exist
+        # This is a simple heuristic check
+        grep -r "\[.*\](.*.md)" . --include="*.md" | grep -v ".git/" | head -20
+        echo "⚠️  Review links manually or use a full markdown linter"
+
+  validate-outputs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Validate outputs directory structure
+      run: |
+        # Check that outputs/ uses .gitkeep for tracked empty dirs
+        test -d outputs/contracts || { echo "outputs/contracts missing"; exit 1; }
+        test -d outputs/logs || { echo "outputs/logs missing"; exit 1; }
+        test -d outputs/teal || { echo "outputs/teal missing"; exit 1; }
+        test -f outputs/contracts/.gitkeep || { echo "outputs/contracts/.gitkeep missing"; exit 1; }
+        test -f outputs/logs/.gitkeep || { echo "outputs/logs/.gitkeep missing"; exit 1; }
+        test -f outputs/teal/.gitkeep || { echo "outputs/teal/.gitkeep missing"; exit 1; }
+        echo "✅ Outputs directory structure valid"
+    
+    - name: Check for stray artifacts
+      run: |
+        # Ensure no truncated or placeholder contracts in src/
+        test ! -d src/outputs && echo "✅ No src/outputs directory" || { echo "❌ src/outputs still exists"; exit 1; }
+        test ! -f src/algorand_ai_contractor/outputs/contracts/* && echo "✅ No src output artifacts" || { echo "⚠️  Found outputs in src/"; }

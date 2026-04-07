@@ -6,21 +6,26 @@ Supports compilation, simulation, and deployment
 import os
 import base64
 import logging
+from pathlib import Path
 from typing import Dict, Optional
 from algosdk import account, mnemonic
 from algosdk.v2client import algod
 from algosdk.transaction import ApplicationCreateTxn, OnComplete, StateSchema, wait_for_confirmation
-# Lazy import pyteal to avoid pkg_resources issues at startup
-# from pyteal import compileTeal, Mode, Approve
 from dotenv import load_dotenv
 
 load_dotenv()
 
-logging.basicConfig(
-    filename='deployment.log',
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(message)s'
-)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+LOG_DIR = PROJECT_ROOT / "outputs" / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    file_handler = logging.FileHandler(LOG_DIR / "deployment.log")
+    formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.INFO)
 
 
 class AlgorandDeployer:
@@ -37,16 +42,16 @@ class AlgorandDeployer:
             try:
                 self._verify_connection()
             except Exception as e:
-                logging.warning(f"Could not verify Algorand connection at initialization: {e}")
+                logger.warning(f"Could not verify Algorand connection at initialization: {e}")
                 # Don't raise - allow deferred connection
     
     def _verify_connection(self):
         """Test Algorand node connectivity."""
         try:
             status = self.algod_client.status()
-            logging.info(f"Connected to Algorand TestNet - Round: {status.get('last-round', 'unknown')}")
+            logger.info(f"Connected to Algorand TestNet - Round: {status.get('last-round', 'unknown')}")
         except Exception as e:
-            logging.error(f"Algorand connection failed: {e}")
+            logger.error(f"Algorand connection failed: {e}")
             raise ConnectionError("Cannot connect to Algorand node")
     
     def compile_pyteal_to_teal(self, pyteal_code: str, mode=None) -> Dict:
@@ -367,7 +372,7 @@ class AlgorandDeployer:
             
             app_address = self._get_app_address(app_id)
             
-            logging.info(f"Contract deployed - App ID: {app_id}, Txn: {txid}")
+            logger.info(f"Contract deployed - App ID: {app_id}, Txn: {txid}")
             
             return {
                 'success': True,
@@ -378,7 +383,7 @@ class AlgorandDeployer:
             }
             
         except Exception as e:
-            logging.error(f"Deployment failed: {e}")
+            logger.error(f"Deployment failed: {e}")
             return {'success': False, 'error': str(e)}
     
     def _get_app_address(self, app_id: int) -> str:

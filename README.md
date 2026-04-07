@@ -1,313 +1,377 @@
 # 🔗 AI-Powered Algorand Smart Contract Creator
 
-Production-grade platform for generating, validating, and deploying Algorand PyTeal smart contracts using natural language and AI (Perplexity/GPT-4).
+Developer tool for rapidly prototyping, explaining, and testing Algorand PyTeal smart contracts using natural language and AI.
 
-## 🎯 Features
+## 📌 What This Is
 
-- **Natural Language → PyTeal**: Describe contracts in plain English
-- **Multi-Layer Validation**: Syntax, security, and compilation checks
-- **Auto-Correction**: Self-healing generation with retry logic
-- **TestNet Deployment**: One-click deployment to Algorand TestNet
-- **Audit Trail**: Complete logging of all generations
-- **Explainability**: AI-powered code explanations
-- **Security-First**: OWASP-aligned, EU AI Act Tier 2 compliant
-- **AlgoKit Integration**: Compatible with AlgoKit tooling
+**An AI-assisted contract generator and TestNet sandbox for Algorand developers.** Use it to:
+
+- 🚀 **Quickly prototype** smart contract ideas from natural language descriptions
+- 🧠 **Understand PyTeal** through AI explanations before writing production code
+- ✅ **Validate and test** contracts with baseline syntax and security checks
+- 🧪 **Deploy to TestNet** for integration testing and iteration
+- 📝 **Generate boilerplate** for common patterns (escrows, multi-sig, time-locks, etc.)
+
+**Particularly useful for xGov proposers** building governance-related tools and contracts. See [docs/xgov-positioning.md](docs/xgov-positioning.md) for details on governance alignment and limitations.
+
+## 🎯 Key Features
+
+- **Natural Language → PyTeal**: Describe contracts in English; AI generates PyTeal code
+- **Self-Correcting Generation**: Retry logic with error feedback to fix issues
+- **Multi-Layer Validation**: Checks for required functions, dangerous patterns, and Python syntax
+- **One-Click TestNet Deploy**: Compile and deploy directly to Algorand TestNet
+- **Code Explanation Mode**: AI summarizes existing PyTeal contracts
+- **Complete Audit Trail**: All generations logged to `outputs/logs/`
+- **LLM Provider Flexibility**: Support for Perplexity AI and OpenAI (configurable)
+
+## 🏗️ Architecture
+
+The tool has three main layers:
+
+### 1. **AI Generation Engine** (`src/algorand_ai_contractor/core/ai_engine.py`)
+- Accepts natural language contract descriptions
+- Builds system prompt with safety guidelines (no eval, complete functions, correct syntax)
+- Calls LLM (Perplexity or OpenAI) with configurable retry logic
+- Parses response to extract code, explanation, deployment notes, and security audit summary
+- Validates generated code before passing to compilation
+
+### 2. **Algorand Blockchain Interface** (`src/algorand_ai_contractor/core/algorand_utils.py`)
+- Compiles PyTeal to TEAL using algod HTTP API
+- Handles smartcontract deployment transaction creation, signing, and submission
+- Manages TestNet account generation and connection management
+- Logs all deployments with app ID and explorer links
+
+### 3. **Streamlit Web UI** (`src/algorand_ai_contractor/ui/streamlit_app.py`)
+- **Generate Tab**: Input descriptions, configure AI provider/model, view generated contract
+- **Explain Tab**: Paste PyTeal code, get AI-generated explanation
+- **Deploy Tab**: Compile to TEAL, manage TestNet accounts, deploy contracts
+- **History Tab**: View all contracts generated in session
+
+All logs are written to `outputs/logs/` for audit and debugging.
 
 ## 📁 Project Structure
 
 ```
-algorand-ai-contract-creator/
-├── src/
-│   └── algorand_ai_contractor/       # Main package
-│       ├── core/                     # Core business logic
-│       │   ├── ai_engine.py          # AI contract generator
-│       │   └── algorand_utils.py     # Blockchain utilities
-│       ├── contracts/                # Contract templates & config
-│       │   ├── config.py             # Contract schemas
-│       │   └── templates/            # Reusable templates
-│       └── ui/                       # User interfaces
-│           └── streamlit_app.py      # Streamlit web app
-├── tests/                            # Test suite
-│   └── test_contracts.py
-├── scripts/                          # Utility scripts
-│   ├── install.sh                    # Unix install script
-│   ├── install.bat                   # Windows install script
-│   ├── run.sh                        # Unix run script
-│   └── run.bat                       # Windows run script
-├── outputs/                          # Generated artifacts (gitignored)
-│   ├── contracts/                    # AI-generated contracts
-│   ├── teal/                         # Compiled TEAL files
-│   └── logs/                         # Generation logs
-├── docs/                             # Documentation
-├── .streamlit/                       # Streamlit config
-│   └── config.toml
-├── .env.example                      # Environment template
-├── .gitignore                        # Git ignore rules
-├── pyproject.toml                    # Python project config
-├── requirements.txt                  # Production dependencies
-├── requirements-dev.txt              # Development dependencies
-├── README.md                         # This file
-├── CONTRIBUTING.md                   # Contribution guidelines
-├── CHANGELOG.md                      # Version history
-└── .algokit.toml                     # AlgoKit configuration
-└── .env.example                      # Add here your API's
-└── .gitignore                        # Make sure to add anything else you don't want to show your mum
-└── #ai_generations.log               # Logs that gets created after you run the app
-└── algorand_ai_contract_creator.code-workspace # Your workspace info
-└── CHANGELOG.md                      # What you have to update with your updates when you update
-└── CONTRIBUTING.md                   # Instructions, in case you new you can also reach out
-└── LICENSE                           # Off the market... Sorry
-└── main.py                           # You would be a criminal if you didn't have one
-└── pyproject.toml                    # Pyproject record, touch if you know where
-└── README.md                         # You are reading it, well done!
-└── requirements-dev.txt              # Install these after installing the following
-└── requirements.txt                  # Well, above is a 'rule of thumb'
+├── src/algorand_ai_contractor/
+│   ├── core/
+│   │   ├── ai_engine.py             # LLM contract generation, validation, explain mode
+│   │   └── algorand_utils.py        # PyTeal→TEAL compilation, deployment, account mgmt
+│   ├── contracts/
+│   │   ├── config.py                # Contract schemas and validation
+│   │   └── templates/               # (Placeholder for future reusable patterns)
+│   └── ui/
+│       └── streamlit_app.py         # Streamlit web app with 4 main tabs
+├── tests/                           # Unit and integration tests
+├── scripts/
+│   ├── install.sh / install.bat    # Setup virtual environment and install deps
+│   └── run.sh / run.bat            # Launch the Streamlit app
+├── outputs/                         # Runtime outputs (generated contracts, logs, TEAL)
+│   ├── contracts/                   # .py files from each generation
+│   ├── logs/                        # ai_generations.log, deployment.log
+│   └── teal/                        # Compiled TEAL files (optional)
+├── docs/
+│   ├── README.md                    # Documentation index
+│   ├── xgov-positioning.md          # xGov use cases and roadmap
+│   └── internal/                    # Internal review reports (not for end users)
+├── pyproject.toml                   # Package config, dependencies, test settings
+├── .env.example                     # Template for environment variables
+└── main.py                          # Entry point (sets up imports, launches Streamlit)
 ```
 
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### Prerequisites
+### Requirements
 
-- Python 3.10+
-- Perplexity API key OR OpenAI API key
-- Algorand TestNet account (for deployment)
+- **Python 3.10+** (check with `python --version`)
+- **LLM API Key** (Perplexity or OpenAI)
+- **Git** and a code editor (VS Code, PyCharm, etc.)
+- **Algorand TestNet AC count** (generated by app or via wallet; needs funding for deployment)
 
-### Installation
+### Installation (All Platforms)
 
-**Windows (Easy Mode):**
-
-```bash
-# Run the installation script
-scripts\install.bat
-
-# Follow the prompts
-```
-
-**Manual Installation:**
-
-```bash
-$ git clone <repository-url>
-$ cd algorand-ai-contract-creator
-$ python -m venv venv
-$ venv\Scripts\activate  # On Windows
-$ source venv/bin/activate  # On macOS/Linux
-
-# Install package in editable mode
-$ pip install -e .
-
-# Install dependencies
-$ pip install -r requirements.txt
-```
-
-### Configuration
-
-1. **Copy environment template:**
-
+1. **Clone the repository:**
    ```bash
-   copy .env.example .env  # Windows
-   cp .env.example .env    # macOS/Linux
+   git clone https://github.com/CDNamchu/algorand_ai_contract_creator.git
+   cd algorand_ai_contract_creator
    ```
 
-2. **Add your API key to `.env`:**
-
+2. **Create and activate a virtual environment:**
    ```bash
+   # macOS / Linux
+   python -m venv venv
+   source venv/bin/activate
+   
+   # Windows (PowerShell)
+   python -m venv venv
+   venv\Scripts\Activate.ps1
+   
+   # Windows (Command Prompt)
+   python -m venv venv
+   venv\Scripts\activate.bat
+   ```
+
+3. **Install the package and dependencies:**
+   ```bash
+   pip install -e ".[dev]"
+   ```
+   Or if you just want production dependencies:
+   ```bash
+   pip install -e .
+   ```
+
+4. **Set up your environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+   Then open `.env` and add your API keys:
+   ```env
+   # Required: Choose one
    AI_PROVIDER=perplexity
-   PERPLEXITY_API_KEY=pplx-your-actual-key-here
+   PERPLEXITY_API_KEY=pplx-youractualkey-here
+   
+   # Or for OpenAI:
+   # AI_PROVIDER=openai
+   # OPENAI_API_KEY=sk-youractualkey-here
+   
+   # Optional: Algorand node connection (defaults to public TestNet)
+   ALGOD_ADDRESS=https://testnet-api.algonode.cloud
+   ALGOD_TOKEN=a
    ```
 
-3. **Get API key from:** https://www.perplexity.ai/settings/api
+### Where to Get API Keys
 
-### Run Application
+- **Perplexity:** https://www.perplexity.ai/settings/api (Recommended—free tier available, online search mode)
+- **OpenAI:** https://platform.openai.com/api-keys ($0.01+ per request depending on model)
 
-**Windows:**
+## ▶️ Running the App
 
-```bash
-scripts\run.bat
-```
+### Quick Start (Recommended)
 
-**Unix/macOS/Linux:**
+Ensure your virtual environment is activated, then:
 
+**macOS / Linux:**
 ```bash
 ./scripts/run.sh
 ```
 
-**Manual:**
+**Windows:**
+```bash
+scripts\run.bat
+```
+
+This launches the Streamlit app on `http://localhost:8501`.
+
+### Manual Launch
+
+If the scripts don't work, start directly:
 
 ```bash
-# Activate virtual environment
-source venv/bin/activate  # On Unix/macOS
-venv\Scripts\activate     # On Windows
-
-# Run Streamlit app
 streamlit run src/algorand_ai_contractor/ui/streamlit_app.py
+```
 
-# OR use the main entry point
+Or via the main entry point:
+
+```bash
 python main.py
 ```
 
-Navigate to `http://localhost:8501`
+### First Time Using the App?
 
-## 📖 Usage
+1. **Generate**: Enter a contract description (e.g., "Create a simple escrow") and click generate
+2. **Explain**: Paste PyTeal code to get AI explanation
+3. **Deploy** (TestNet only): Compile, generate a test account, fund it via faucet, and deploy
+4. **History**: View past generation sessions
 
-### 1. Generate Contract
+## 📖 Usage Examples
 
-- Enter natural language description
-- Click "Generate Contract"
-- Review code, explanation, and audit summary
-- Download or deploy to TestNet
+### Generate an Escrow Contract
 
-### 2. Deploy to TestNet
+**Input:**
+```
+Create an escrow contract that holds ALGO until buyer and seller both approve the transaction.
+```
 
-- Compile generated contract to TEAL
-- Fund a TestNet account via [dispenser](https://testnet.algoexplorer.io/dispenser)
-- Deploy with your private key
-- View on AlgoExplorer
+**Output:**
+- ✅ Generated PyTeal code with approval_program() and clear_program()
+- 📝 Plain-English explanation of how it works
+- 🚀 Deployment instructions for TestNet
+- 🔐 Security notes and best practices
 
-### 3. Explain Existing Code
+### Explain Existing Code
 
-- Paste PyTeal code
-- Get human-readable explanation
+**Input:** Paste any PyTeal code snippet
+
+**Output:** AI generates a summary explaining:
+- Contract purpose
+- Key functions and state
+- Transaction flow
+- Security considerations
+
+### Deploy to TestNet
+
+1. Generate a contract
+2. Click "Compile to TEAL"
+3. Generate a test account (or paste your own private key)
+4. Fund the account via [TestNet Faucet](https://testnet.algoexplorer.io/dispenser)
+5. Click "Deploy" and monitor on [AlgoExplorer](https://testnet.algoexplorer.io/)
 
 ## 🧪 Testing
 
-```bash
-# Run all tests
-$ pytest tests/ -v
+### Run Unit Tests (No API Keys Required)
 
-# Or using AlgoKit
-$ algokit project run test
+Unit tests use mocks and do not require external services:
+
+```bash
+# Run all unit tests
+pytest tests/ -v
+
+# Run specific test file
+pytest tests/test_contracts.py -v
+
+# Run with coverage
+pytest tests/ --cov=src/algorand_ai_contractor
 ```
 
-## 🔒 Security
+### Run Integration Tests (Optional)
 
-- Temperature capped at 0.2 for deterministic output
-- Automatic detection of dangerous patterns (`eval()`, `exec()`)
-- No hardcoded keys in generated contracts
-- All deployments logged for audit trail
-- Private keys never stored
-- Multi-layer validation pipeline
+Integration tests call live LLM and Algorand APIs and require valid keys in `.env`:
 
-## 🤖 AI Providers
+```bash
+# Enable integration tests
+export RUN_LIVE_TESTS=1
+pytest tests/ -v
+
+# Or on Windows:
+set RUN_LIVE_TESTS=1
+pytest tests/ -v
+```
+
+### What's Tested
+
+- **Validation**: Required function detection, dangerous pattern rejection, syntax checking
+- **Parsing**: Code extraction from markdown, LLM response handling
+- **Compilation**: PyTeal→TEAL pipeline with known fixtures
+- **Integration** (optional): Live contract generation and test deployments
+
+See [tests/test_contracts.py](tests/test_contracts.py) for details.
+
+## ⚠️ Limitations & Security Notes
+
+### What This Tool Does NOT Guarantee
+
+- ❌ **NOT a substitute for professional audit** – Generated contracts require independent review before any live use
+- ❌ **NOT production-ready by default** – Code is suitable for TestNet prototyping and learning only
+- ❌ **NOT an implementation of governance mechanics** – See [docs/xgov-positioning.md](docs/xgov-positioning.md) for xGov scope
+- ❌ **NOT formally verified** – Baseline validation catches common errors, not all edge cases
+- ❌ **NOT risk-free** – AI can hallucinate code patterns or logic errors
+
+### Validation & Safety Checks
+
+This tool includes baseline safety checks:
+
+✅ Requires `approval_program()` and optionally `clear_program()` functions  
+✅ Rejects code containing `eval()` or `__import__()` patterns  
+✅ Validates Python 3 syntax before compilation  
+✅ Catches unterminated strings and common bracket mismatches  
+✅ Logs all generations for audit trail  
+
+**These checks are NOT sufficient for production.** All generated contracts must be:
+
+1. **Reviewed** by an experienced smart contract developer
+2. **Tested** thoroughly on TestNet with realistic scenarios
+3. **Audited** by a professional firm before MainNet deployment with real value
+4. **Independently verified** against your business logic and security requirements
+
+### Recommendation
+
+Use this tool for:
+- ✅ Rapid prototyping and learning
+- ✅ Iterating on contract ideas before formal development
+- ✅ Boilerplate generation for patterns you'll review carefully
+- ✅ TestNet-only experimentation and testing
+
+Do NOT use for:
+- ❌ Unreviewed MainNet deployment
+- ❌ Contracts handling real value or governance decisions
+- ❌ Systems where security has not been professionally verified
+- ❌ Production without multi-layer review and testing
+
+## 🔒 Security Features
+
+- **Deterministic generation**: Temperature set to 0.2 to reduce randomness
+- **Multi-layer validation**: Syntax → imports → dangerous patterns → compilation
+- **No hardcoded secrets**: Generated contracts don't include API keys or private keys
+- **Complete audit logs**: Every generation recorded to `outputs/logs/ai_generations.log`
+- **Isolated execution**: Generated code executed in controlled namespace
+- **Transaction signing**: Private keys never stored; signing done in-memory only
+
+## 🤖 Supported AI Providers
 
 ### Perplexity (Recommended)
-
-- **Models**: `llama-3.1-sonar-small-128k-online`, `llama-3.1-sonar-large-128k-online`
-- **Pros**: More affordable, online search capability, good for latest docs
+- **Model**: `sonar`, `sonar-pro`
+- **Advantages**: Affordable, online search mode, good for latest docs
 - **Get Key**: https://www.perplexity.ai/settings/api
+- **Free Tier**: Yes, with usage limits
 
 ### OpenAI
-
-- **Models**: `gpt-4`, `gpt-4-turbo`
-- **Pros**: Industry standard, highly reliable
+- **Model**: `gpt-4`, `gpt-4-turbo`
+- **Advantages**: Industry standard, highly reliable
 - **Get Key**: https://platform.openai.com/api-keys
+- **Pricing**: ~$0.03/1K generated tokens
 
-## 📊 Performance Metrics
-
-- **Compilation Success Rate**: TBC
-- **Average Generation Time**: TBC
-- **Retry Rate**: TBC
-- **Security Compliance**: EU AI Act Tier 2, IEEE EAD
-
-## 🛠️ Architecture
-
-```
-User Input (Natural Language)
-        ↓
-AI Engine (Perplexity/GPT-4 with safety prompts)
-        ↓
-Validation Pipeline (Syntax + Security)
-        ↓
-PyTeal → TEAL Compilation
-        ↓
-Algorand TestNet Deployment
-        ↓
-AlgoExplorer Integration
-```
-
-## 📝 Example Prompts
-
-**Escrow Contract:**
-
-> "Create an escrow that holds 10 ALGO until both buyer and seller call approve()"
-
-**Time-Lock Vault:**
-
-> "Design a vault that releases funds to address X after Unix timestamp Y"
-
-**Voting System:**
-
-> "Build a voting contract where each address can vote once on a yes/no proposal"
-
-**Multi-Sig Wallet:**
-
-> "Create a 2-of-3 multi-signature wallet for secure fund management"
+Set your preference in `.env` with `AI_PROVIDER` and corresponding API key.
 
 ## 🤝 Contributing
 
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Add tests for new features
-4. Run tests (`pytest tests/ -v`)
-5. Commit changes (`git commit -m 'Add amazing feature'`)
-6. Push to branch (`git push origin feature/amazing-feature`)
-7. Submit Pull Request
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for details, including:
+- How to report issues
+- How to submit pull requests
+- Code style and testing requirements
+- Governance feature ideas
+
+Key guidelines:
+1. Add tests for new features
+2. Run `pytest` to ensure all tests pass
+3. Use `black` for formatting and `pylint` for linting
+4. Update docs as needed
+
+## 📚 Resources
+
+- **Algorand Docs**: https://developer.algorand.org
+- **PyTeal Docs**: https://pyteal.readthedocs.io
+- **AlgoKit CLI**: https://github.com/algorandfoundation/algokit-cli
+- **Algorand Standards**: https://arc.algorandfoundation.org
+- **TestNet Faucet**: https://testnet.algoexplorer.io/dispenser
+- **AlgoExplorer**: https://testnet.algoexplorer.io
+
+## 🔗 Related xGov Resources
+
+If you're building governance tools:
+- [Algorand xGov Portal](https://xgov.algorand.foundation)
+- [Governance Contracts](https://github.com/algorandfoundation/algokit-cli) (official examples)
+- [PyTeal Governance Patterns](https://pyteal.readthedocs.io) (check for governance examples)
+
+See [docs/xgov-positioning.md](docs/xgov-positioning.md) for xGov-specific use cases and roadmap.
 
 ## 📜 License
 
-MIT License - See LICENSE file
+MIT License – See [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🆘 Support & Questions
 
-- **Issues**: GitHub Issues
-- **Documentation**: `/docs` folder
-- **Algorand SDK**: https://developer.algorand.org
-- **PyTeal Docs**: https://pyteal.readthedocs.io
-- **AlgoKit**: https://github.com/algorandfoundation/algokit-cli
+- **General Questions**: GitHub Issues or Discussions
+- **Bug Reports**: GitHub Issues (include `.env` setup, error logs from `outputs/logs/`)
+- **Feature Requests**: GitHub Issues
+- **Governance Integration**: Algorand Forum or xGov Discord
+- **Security Issues**: See [CONTRIBUTING.md](CONTRIBUTING.md#security) for responsible disclosure
 
-## 🔗 Resources
+## ⚖️ Disclaimer
 
-- [AlgoKit Documentation](https://github.com/algorandfoundation/algokit-cli)
-- [Perplexity API Docs](https://docs.perplexity.ai/)
-- [OpenAI API Docs](https://platform.openai.com/docs)
-- [PyTeal Examples](https://github.com/algorand/pyteal/tree/master/examples)
+**This tool generates smart contracts for educational and testing purposes only.**
 
-
-
-## 🖼️ Screenshots
-
-Thanks — I've renamed your images to friendly filenames and updated the examples below so they display correctly in the README.
-
-- images/dashboard-1.jpeg
-- images/dashboard-2.jpeg
-- images/dashboard-3.jpeg
-
-Inline display (HTML):
-
-<img src="images/dashboard-1.jpeg" alt="Dashboard 1" width="900" />
-
-<img src="images/dashboard-2.jpeg" alt="Dashboard 2" width="900" />
-
-<img src="images/dashboard-3.jpeg" alt="Dashboard 3" width="900" />
-
-Copyable Markdown (clean names):
-
-```markdown
-![Dashboard 1](images/dashboard-1.jpeg)
-![Dashboard 2](images/dashboard-2.jpeg)
-![Dashboard 3](images/dashboard-3.jpeg)
-```
-
-Side-by-side thumbnails (HTML):
-
-<div>
-        <img src="images/dashboard-1.jpeg" alt="thumb1" width="300" style="margin-right:8px" />
-        <img src="images/dashboard-2.jpeg" alt="thumb2" width="300" style="margin-right:8px" />
-        <img src="images/dashboard-3.jpeg" alt="thumb3" width="300" />
-</div>
-
-If you'd like different names or a different layout, tell me and I can change them.
-
-
-**⚠️ DISCLAIMER**: This tool generates smart contracts for educational and testing purposes. Always conduct thorough security audits before deploying to MainNet. AI-generated code should be reviewed by experienced developers.
+- Generated code is NOT automatically secure or production-ready
+- You are responsible for all security reviews, testing, and audits
+- No warranty is provided; use at your own risk
+- See [Limitations & Security Notes](#-limitations--security-notes) above
 
